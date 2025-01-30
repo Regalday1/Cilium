@@ -1,123 +1,152 @@
-# cilium-manifest.yaml
-apiVersion: talos.dev/v1alpha1
-kind: Config
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: cilium-config
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    meta.helm.sh/release-name: cilium
+    meta.helm.sh/release-namespace: kube-system
+  creationTimestamp: "2025-01-30T12:46:43Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cilium-operator
+    app.kubernetes.io/part-of: cilium
+    io.cilium/app: operator
+    name: cilium-operator
+  name: cilium-operator
+  namespace: kube-system
+  resourceVersion: "939"
+  uid: fbd0ddda-0a96-4f36-8640-eb8c093d459a
 spec:
-  # Talos cluster settings
-  network:
-    # Define your networking options here (e.g., IP addressing, CNI)
-    cni:
-      name: cilium
-      conf: "/etc/cilium/cilium-cni.conf"
-      
-  # Control Plane configuration (for Cilium's Helm chart installation)
-  services:
-    # Cilium agent service settings
-    - name: cilium-agent
-      enabled: true
-      namespace: kube-system
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      io.cilium/app: operator
+      name: cilium-operator
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "9963"
+        prometheus.io/scrape: "true"
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: cilium-operator
+        app.kubernetes.io/part-of: cilium
+        io.cilium/app: operator
+        name: cilium-operator
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                io.cilium/app: operator
+            topologyKey: kubernetes.io/hostname
+      automountServiceAccountToken: true
       containers:
-        - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.16.6  # Updated version based on input
-          args:
-            - "--config-dir=/etc/cilium"
-            - "--k8s-kubeconfig=/etc/cilium/kubeconfig"
-            - "--set ipam.mode=kubernetes"  # Set IPAM mode to Kubernetes
-            - "--set kubeProxyReplacement=true"  # Enable kubeProxyReplacement
-            - "--set securityContext.capabilities.ciliumAgent={CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"  # Set capabilities for cilium agent
-            - "--set securityContext.capabilities.cleanCiliumState={NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"  # Set cleanCiliumState capabilities
-            - "--set cgroup.autoMount.enabled=false"  # Disable auto mount for cgroup
-            - "--set cgroup.hostRoot=/sys/fs/cgroup"  # Set the cgroup host root
-            - "--set k8sServiceHost=localhost"  # Set the Kubernetes service host
-            - "--set k8sServicePort=7445"  # Set the Kubernetes service port
-            - "--set ipv6.enabled=false"  # Disable IPv6
-            - "--set securityContext.privileged=true"  # Enable privileged security context
-            # - "--set hubble.enabled=true"  # Enable Hubble
-            # - "--set hubble.relay.enabled=true"  # Enable Hubble relay
-            # - "--set hubble.ui.enabled=true"  # Enable Hubble UI
-            # - "--set hubble.ui.port=8088"  # Set Hubble UI port
-          volumeMounts:
-            - mountPath: "/etc/cilium"
-              name: cilium-config-volume
-            - mountPath: "/var/run/cilium"
-              name: cilium-run
-    - name: cilium-operator
-      enabled: true
-      namespace: kube-system
-      containers:
-        - name: cilium-operator
-          image: quay.io/cilium/operator:v1.16.6  # Updated version based on input
-          args:
-            - "--config-dir=/etc/cilium"
-            - "--k8s-kubeconfig=/etc/cilium/kubeconfig"
-            - "--set ipam.mode=kubernetes"  # Set IPAM mode to Kubernetes
-            - "--set kubeProxyReplacement=true"  # Enable kubeProxyReplacement
-            - "--set securityContext.capabilities.ciliumAgent={CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"  # Set capabilities for cilium agent
-            - "--set securityContext.capabilities.cleanCiliumState={NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"  # Set cleanCiliumState capabilities
-            - "--set cgroup.autoMount.enabled=false"  # Disable auto mount for cgroup
-            - "--set cgroup.hostRoot=/sys/fs/cgroup"  # Set the cgroup host root
-            - "--set k8sServiceHost=localhost"  # Set the Kubernetes service host
-            - "--set k8sServicePort=7445"  # Set the Kubernetes service port
-            - "--set ipv6.enabled=false"  # Disable IPv6
-            - "--set securityContext.privileged=true"  # Enable privileged security context
-            # - "--set hubble.enabled=true"  # Enable Hubble
-            # - "--set hubble.relay.enabled=true"  # Enable Hubble relay
-            # - "--set hubble.ui.enabled=true"  # Enable Hubble UI
-            # - "--set hubble.ui.port=8088"  # Set Hubble UI port
-          volumeMounts:
-            - mountPath: "/etc/cilium"
-              name: cilium-config-volume
-    - name: cilium-envoy
-      enabled: true
-      namespace: kube-system
-      containers:
-        - name: cilium-envoy
-          image: quay.io/cilium/envoy:v1.16.6  # Updated version based on input
-          args:
-            - "--set ipam.mode=kubernetes"  # Set IPAM mode to Kubernetes
-            - "--set kubeProxyReplacement=true"  # Enable kubeProxyReplacement
-            - "--set securityContext.capabilities.ciliumAgent={CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"  # Set capabilities for cilium agent
-            - "--set securityContext.capabilities.cleanCiliumState={NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"  # Set cleanCiliumState capabilities
-            - "--set cgroup.autoMount.enabled=false"  # Disable auto mount for cgroup
-            - "--set cgroup.hostRoot=/sys/fs/cgroup"  # Set the cgroup host root
-            - "--set k8sServiceHost=localhost"  # Set the Kubernetes service host
-            - "--set k8sServicePort=7445"  # Set the Kubernetes service port
-            - "--set ipv6.enabled=false"  # Disable IPv6
-            - "--set securityContext.privileged=true"  # Enable privileged security context
-            # - "--set hubble.enabled=true"  # Enable Hubble
-            # - "--set hubble.relay.enabled=true"  # Enable Hubble relay
-            # - "--set hubble.ui.enabled=true"  # Enable Hubble UI
-            # - "--set hubble.ui.port=8088"  # Set Hubble UI port
-          volumeMounts:
-            - mountPath: "/etc/cilium"
-              name: cilium-config-volume
-            - mountPath: "/var/run/cilium"
-              name: cilium-run
-
-  # Networking options
-  networking:
-    # Configure network interfaces and IP settings
-    interfaces:
-      - name: eth0
-        dhcp: true
-        mtu: 1500
-
-  # Volumes for configuration
-  volumes:
-    - name: cilium-config-volume
-      hostPath:
-        path: /etc/cilium
-    - name: cilium-run
-      hostPath:
-        path: /var/run/cilium
-
-  # Enable specific features like monitoring, etc.
-  # featureGates:
-  #   - name: Hubble
-  #     enabled: true
-
-  # Other relevant settings for Talos
-  talos:
-    services:
-      # Additional configurations as required
+      - args:
+        - --config-dir=/tmp/cilium/config-map
+        - --debug=$(CILIUM_DEBUG)
+        command:
+        - cilium-operator-generic
+        env:
+        - name: K8S_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: CILIUM_K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: CILIUM_DEBUG
+          valueFrom:
+            configMapKeyRef:
+              key: debug
+              name: cilium-config
+              optional: true
+        - name: KUBERNETES_SERVICE_HOST
+          value: localhost
+        - name: KUBERNETES_SERVICE_PORT
+          value: "7445"
+        image: quay.io/cilium/operator-generic:v1.16.6@sha256:13d32071d5a52c069fb7c35959a56009c6914439adc73e99e098917646d154fc
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            host: 127.0.0.1
+            path: /healthz
+            port: 9234
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 3
+        name: cilium-operator
+        ports:
+        - containerPort: 9963
+          hostPort: 9963
+          name: prometheus
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            host: 127.0.0.1
+            path: /healthz
+            port: 9234
+            scheme: HTTP
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 3
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - mountPath: /tmp/cilium/config-map
+          name: cilium-config-path
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/os: linux
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: cilium-operator
+      serviceAccountName: cilium-operator
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - operator: Exists
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: cilium-config
+        name: cilium-config-path
+status:
+  availableReplicas: 2
+  conditions:
+  - lastTransitionTime: "2025-01-30T12:46:47Z"
+    lastUpdateTime: "2025-01-30T12:46:47Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2025-01-30T12:46:43Z"
+    lastUpdateTime: "2025-01-30T12:46:50Z"
+    message: ReplicaSet "cilium-operator-7dd7d5fc7d" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 2
+  replicas: 2
+  updatedReplicas: 2
