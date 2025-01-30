@@ -5,7 +5,7 @@ metadata:
     deployment.kubernetes.io/revision: "1"
     meta.helm.sh/release-name: cilium
     meta.helm.sh/release-namespace: kube-system
-  creationTimestamp: "2025-01-30T12:46:43Z"
+  creationTimestamp: "2025-01-30T12:50:49Z"
   generation: 1
   labels:
     app.kubernetes.io/managed-by: Helm
@@ -15,8 +15,8 @@ metadata:
     name: cilium-operator
   name: cilium-operator
   namespace: kube-system
-  resourceVersion: "939"
-  uid: fbd0ddda-0a96-4f36-8640-eb8c093d459a
+  resourceVersion: "1613"
+  uid: b27d54f8-57b5-4d2c-ae92-002cd573c65a
 spec:
   progressDeadlineSeconds: 600
   replicas: 2
@@ -132,21 +132,20 @@ spec:
           name: cilium-config
         name: cilium-config-path
 status:
-  availableReplicas: 2
   conditions:
-  - lastTransitionTime: "2025-01-30T12:46:47Z"
-    lastUpdateTime: "2025-01-30T12:46:47Z"
-    message: Deployment has minimum availability.
-    reason: MinimumReplicasAvailable
-    status: "True"
+  - lastTransitionTime: "2025-01-30T12:50:49Z"
+    lastUpdateTime: "2025-01-30T12:50:49Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
     type: Available
-  - lastTransitionTime: "2025-01-30T12:46:43Z"
-    lastUpdateTime: "2025-01-30T12:46:50Z"
-    message: ReplicaSet "cilium-operator-7dd7d5fc7d" has successfully progressed.
-    reason: NewReplicaSetAvailable
+  - lastTransitionTime: "2025-01-30T12:50:49Z"
+    lastUpdateTime: "2025-01-30T12:50:49Z"
+    message: ReplicaSet "cilium-operator-7dd7d5fc7d" is progressing.
+    reason: ReplicaSetUpdated
     status: "True"
     type: Progressing
   observedGeneration: 1
-  readyReplicas: 2
   replicas: 2
+  unavailableReplicas: 2
   updatedReplicas: 2
