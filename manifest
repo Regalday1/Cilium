@@ -1,0 +1,75 @@
+# cilium-manifest.yaml
+apiVersion: talos.dev/v1alpha1
+kind: Config
+metadata:
+  name: cilium-config
+spec:
+  # Talos cluster settings
+  network:
+    # Define your networking options here (e.g., IP addressing, CNI)
+    cni:
+      name: cilium
+      conf: "/etc/cilium/cilium-cni.conf"
+      
+  # Control Plane configuration (for Cilium's Helm chart installation)
+  services:
+    # Cilium agent service settings
+    - name: cilium-agent
+      enabled: true
+      namespace: kube-system
+      containers:
+        - name: cilium-agent
+          image: quay.io/cilium/cilium:v1.12.0
+          args:
+            - "--config-dir=/etc/cilium"
+            - "--k8s-kubeconfig=/etc/cilium/kubeconfig"
+          volumeMounts:
+            - mountPath: "/etc/cilium"
+              name: cilium-config-volume
+            - mountPath: "/var/run/cilium"
+              name: cilium-run
+    - name: cilium-operator
+      enabled: true
+      namespace: kube-system
+      containers:
+        - name: cilium-operator
+          image: quay.io/cilium/operator:v1.12.0
+          args:
+            - "--config-dir=/etc/cilium"
+            - "--k8s-kubeconfig=/etc/cilium/kubeconfig"
+          volumeMounts:
+            - mountPath: "/etc/cilium"
+              name: cilium-config-volume
+    - name: cilium-envoy
+      enabled: true
+      namespace: kube-system
+      containers:
+        - name: cilium-envoy
+          image: quay.io/cilium/envoy:v1.12.0
+
+  # Networking options
+  networking:
+    # Configure network interfaces and IP settings
+    interfaces:
+      - name: eth0
+        dhcp: true
+        mtu: 1500
+
+  # Volumes for configuration
+  volumes:
+    - name: cilium-config-volume
+      hostPath:
+        path: /etc/cilium
+    - name: cilium-run
+      hostPath:
+        path: /var/run/cilium
+
+  # Enable specific features like monitoring, etc.
+  featureGates:
+    - name: Hubble
+      enabled: true
+
+  # Other relevant settings for Talos
+  talos:
+    services:
+      # Additional configurations as required
