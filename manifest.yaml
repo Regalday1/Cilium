@@ -33,10 +33,10 @@ spec:
             - "--set k8sServicePort=7445"  # Set the Kubernetes service port
             - "--set ipv6.enabled=false"  # Disable IPv6
             - "--set securityContext.privileged=true"  # Enable privileged security context
-            - "--set hubble.enabled=true"  # Enable Hubble
-            - "--set hubble.relay.enabled=true"  # Enable Hubble relay
-            - "--set hubble.ui.enabled=true"  # Enable Hubble UI
-            - "--set hubble.ui.port=8088"  # Set Hubble UI port
+            # - "--set hubble.enabled=true"  # Enable Hubble
+            # - "--set hubble.relay.enabled=true"  # Enable Hubble relay
+            # - "--set hubble.ui.enabled=true"  # Enable Hubble UI
+            # - "--set hubble.ui.port=8088"  # Set Hubble UI port
           volumeMounts:
             - mountPath: "/etc/cilium"
               name: cilium-config-volume
@@ -61,10 +61,10 @@ spec:
             - "--set k8sServicePort=7445"  # Set the Kubernetes service port
             - "--set ipv6.enabled=false"  # Disable IPv6
             - "--set securityContext.privileged=true"  # Enable privileged security context
-            - "--set hubble.enabled=true"  # Enable Hubble
-            - "--set hubble.relay.enabled=true"  # Enable Hubble relay
-            - "--set hubble.ui.enabled=true"  # Enable Hubble UI
-            - "--set hubble.ui.port=8088"  # Set Hubble UI port
+            # - "--set hubble.enabled=true"  # Enable Hubble
+            # - "--set hubble.relay.enabled=true"  # Enable Hubble relay
+            # - "--set hubble.ui.enabled=true"  # Enable Hubble UI
+            # - "--set hubble.ui.port=8088"  # Set Hubble UI port
           volumeMounts:
             - mountPath: "/etc/cilium"
               name: cilium-config-volume
@@ -85,10 +85,10 @@ spec:
             - "--set k8sServicePort=7445"  # Set the Kubernetes service port
             - "--set ipv6.enabled=false"  # Disable IPv6
             - "--set securityContext.privileged=true"  # Enable privileged security context
-            - "--set hubble.enabled=true"  # Enable Hubble
-            - "--set hubble.relay.enabled=true"  # Enable Hubble relay
-            - "--set hubble.ui.enabled=true"  # Enable Hubble UI
-            - "--set hubble.ui.port=8088"  # Set Hubble UI port
+            # - "--set hubble.enabled=true"  # Enable Hubble
+            # - "--set hubble.relay.enabled=true"  # Enable Hubble relay
+            # - "--set hubble.ui.enabled=true"  # Enable Hubble UI
+            # - "--set hubble.ui.port=8088"  # Set Hubble UI port
           volumeMounts:
             - mountPath: "/etc/cilium"
               name: cilium-config-volume
@@ -113,9 +113,9 @@ spec:
         path: /var/run/cilium
 
   # Enable specific features like monitoring, etc.
-  featureGates:
-    - name: Hubble
-      enabled: true
+  # featureGates:
+  #   - name: Hubble
+  #     enabled: true
 
   # Other relevant settings for Talos
   talos:
