@@ -19,10 +19,24 @@ spec:
       namespace: kube-system
       containers:
         - name: cilium-agent
-          image: quay.io/cilium/cilium:v1.12.0
+          image: quay.io/cilium/cilium:v1.16.6  # Updated version based on input
           args:
             - "--config-dir=/etc/cilium"
             - "--k8s-kubeconfig=/etc/cilium/kubeconfig"
+            - "--set ipam.mode=kubernetes"  # Set IPAM mode to Kubernetes
+            - "--set kubeProxyReplacement=true"  # Enable kubeProxyReplacement
+            - "--set securityContext.capabilities.ciliumAgent={CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"  # Set capabilities for cilium agent
+            - "--set securityContext.capabilities.cleanCiliumState={NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"  # Set cleanCiliumState capabilities
+            - "--set cgroup.autoMount.enabled=false"  # Disable auto mount for cgroup
+            - "--set cgroup.hostRoot=/sys/fs/cgroup"  # Set the cgroup host root
+            - "--set k8sServiceHost=localhost"  # Set the Kubernetes service host
+            - "--set k8sServicePort=7445"  # Set the Kubernetes service port
+            - "--set ipv6.enabled=false"  # Disable IPv6
+            - "--set securityContext.privileged=true"  # Enable privileged security context
+            - "--set hubble.enabled=true"  # Enable Hubble
+            - "--set hubble.relay.enabled=true"  # Enable Hubble relay
+            - "--set hubble.ui.enabled=true"  # Enable Hubble UI
+            - "--set hubble.ui.port=8088"  # Set Hubble UI port
           volumeMounts:
             - mountPath: "/etc/cilium"
               name: cilium-config-volume
@@ -33,10 +47,24 @@ spec:
       namespace: kube-system
       containers:
         - name: cilium-operator
-          image: quay.io/cilium/operator:v1.12.0
+          image: quay.io/cilium/operator:v1.16.6  # Updated version based on input
           args:
             - "--config-dir=/etc/cilium"
             - "--k8s-kubeconfig=/etc/cilium/kubeconfig"
+            - "--set ipam.mode=kubernetes"  # Set IPAM mode to Kubernetes
+            - "--set kubeProxyReplacement=true"  # Enable kubeProxyReplacement
+            - "--set securityContext.capabilities.ciliumAgent={CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"  # Set capabilities for cilium agent
+            - "--set securityContext.capabilities.cleanCiliumState={NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"  # Set cleanCiliumState capabilities
+            - "--set cgroup.autoMount.enabled=false"  # Disable auto mount for cgroup
+            - "--set cgroup.hostRoot=/sys/fs/cgroup"  # Set the cgroup host root
+            - "--set k8sServiceHost=localhost"  # Set the Kubernetes service host
+            - "--set k8sServicePort=7445"  # Set the Kubernetes service port
+            - "--set ipv6.enabled=false"  # Disable IPv6
+            - "--set securityContext.privileged=true"  # Enable privileged security context
+            - "--set hubble.enabled=true"  # Enable Hubble
+            - "--set hubble.relay.enabled=true"  # Enable Hubble relay
+            - "--set hubble.ui.enabled=true"  # Enable Hubble UI
+            - "--set hubble.ui.port=8088"  # Set Hubble UI port
           volumeMounts:
             - mountPath: "/etc/cilium"
               name: cilium-config-volume
@@ -45,7 +73,27 @@ spec:
       namespace: kube-system
       containers:
         - name: cilium-envoy
-          image: quay.io/cilium/envoy:v1.12.0
+          image: quay.io/cilium/envoy:v1.16.6  # Updated version based on input
+          args:
+            - "--set ipam.mode=kubernetes"  # Set IPAM mode to Kubernetes
+            - "--set kubeProxyReplacement=true"  # Enable kubeProxyReplacement
+            - "--set securityContext.capabilities.ciliumAgent={CHOWN,KILL,NET_ADMIN,NET_RAW,IPC_LOCK,SYS_ADMIN,SYS_RESOURCE,DAC_OVERRIDE,FOWNER,SETGID,SETUID}"  # Set capabilities for cilium agent
+            - "--set securityContext.capabilities.cleanCiliumState={NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}"  # Set cleanCiliumState capabilities
+            - "--set cgroup.autoMount.enabled=false"  # Disable auto mount for cgroup
+            - "--set cgroup.hostRoot=/sys/fs/cgroup"  # Set the cgroup host root
+            - "--set k8sServiceHost=localhost"  # Set the Kubernetes service host
+            - "--set k8sServicePort=7445"  # Set the Kubernetes service port
+            - "--set ipv6.enabled=false"  # Disable IPv6
+            - "--set securityContext.privileged=true"  # Enable privileged security context
+            - "--set hubble.enabled=true"  # Enable Hubble
+            - "--set hubble.relay.enabled=true"  # Enable Hubble relay
+            - "--set hubble.ui.enabled=true"  # Enable Hubble UI
+            - "--set hubble.ui.port=8088"  # Set Hubble UI port
+          volumeMounts:
+            - mountPath: "/etc/cilium"
+              name: cilium-config-volume
+            - mountPath: "/var/run/cilium"
+              name: cilium-run
 
   # Networking options
   networking:
